@@ -1,0 +1,53 @@
+// ==UserScript==
+// @name         Vua Bypass Pro - Auto Script
+// @namespace    https://github.com/TênTàiKhoảnCủaBạn/vua-bypass
+// @version      1.0
+// @description  Tự động hóa xử lý và hỗ trợ vượt các trang trung gian, rút gọn link.
+// @author       Văn Thắng
+// @match        *://*.trafficso1.com/*
+// @match        *://*.link4m.com/*
+// @match        *://*.layma.net/*
+// @match        *://*.link1s.com/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=tampermonkey.net
+// @grant        none
+// @run-at       document-end
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    console.log("👑 Vua Bypass Script đã được kích hoạt trên trang này!");
+
+    // 1. Tự động tìm và bấm các nút có chữ "Get Link", "Tiếp tục", "Vượt link" sau khi đếm ngược
+    const autoClickTimer = setInterval(() => {
+        const buttons = document.querySelectorAll('button, a, input[type="submit"]');
+        
+        for (let btn of buttons) {
+            let text = (btn.innerText || btn.value || '').toLowerCase();
+            
+            // Các từ khóa nhận diện nút bấm cần click
+            if (text.includes('get link') || text.includes('tiếp tục') || text.includes('vượt link') || text.includes('lấy mã') || text.includes('click here to continue')) {
+                // Kiểm tra xem nút có bị ẩn hoặc vô hiệu hóa không
+                if (btn.offsetParent !== null && !btn.disabled) {
+                    console.log("🎯 Đã tìm thấy nút tiếp tục, tự động bấm:", text);
+                    btn.click();
+                    clearInterval(autoClickTimer);
+                    break;
+                }
+            }
+        }
+    }, 1500); // Quét lại mỗi 1.5 giây
+
+    // 2. Tự động bóc tách link đích cuối cùng nếu trang có chứa thẻ chuyển hướng ẩn
+    setTimeout(() => {
+        let finalLinkElement = document.querySelector('a#download-link, a.get-link, input#final-url, a[href*="mediafire.com"], a[href*="drive.google.com"]');
+        if (finalLinkElement) {
+            let targetUrl = finalLinkElement.href || finalLinkElement.value;
+            if (targetUrl && targetUrl.startsWith('http')) {
+                console.log("🚀 Tìm thấy link đích thực tế, đang chuyển hướng:", targetUrl);
+                window.location.href = targetUrl;
+            }
+        }
+    }, 4000); // Chờ 4 giây để trang tải xong các thành phần ẩn
+
+})();
